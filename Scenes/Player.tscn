@@ -31,7 +31,8 @@ extents = Vector2( 30, 30 )
 [node name="KinematicBody2D" type="KinematicBody2D" parent="."]
 collision_mask = 2
 script = ExtResource( 2 )
-jump_height = 100.0
+move_speed = 300.0
+jump_height = 180.0
 jump_time_to_peak = 0.5
 jump_time_to_descent = 0.4
 
@@ -51,3 +52,5 @@ collision_mask = 2
 [node name="Camera2D" type="Camera2D" parent="KinematicBody2D"]
 current = true
 drag_margin_v_enabled = true
+drag_margin_top = 0.35
+drag_margin_bottom = 0.34

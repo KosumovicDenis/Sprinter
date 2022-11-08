@@ -2,6 +2,7 @@ extends KinematicBody2D
 
 # Velocità di movimento nell'asse x
 export var move_speed = 200.0
+var horizontal := 0.0 # Direzione personaggio
 
 # Velocità in entrambi gli assi (inizialmente viene settata a ZERO(0,O))
 var velocity := Vector2.ZERO
@@ -34,16 +35,21 @@ func _physics_process(delta):
 				continue # passa subito al prossimo stato
 			elif is_near_wall():
 				if velocity.y >= 0.0:
+					# TODO: velocity.y quando è maggiore di 0 e mi attacco al muro
+					velocity.y = 1 # da sistemare il valore
 					state = States.WALL # Cambio statp -> wall
 					continue # passa subito al prossimo stato
 				else:
-					velocity.y += wall_friction * 1.2 # Rallenta va velocià nel salto -> TODO: rivalutare il valore
-					print(velocity.y)
+					velocity.y += wall_friction * 1.5 # Rallenta va velocià nel salto -> TODO: rivalutare il valore
 			$AnimatedSprite.play("air")  # Cambio animazione/sprite -> air
-			move(delta, false) # Funzione che fa muovere e saltare il player
+			#move(delta, false) # Funzione che fa muovere e saltare il player
+			velocity.y += get_gravity() * delta
+			# velocity.x = velocity.x
+			velocity.x = horizontal * move_speed # Per avere un salto più lungo -> velocity.x = velocity.x con velocity.x = n * direction -> funzione move e con n alto(450)
+			velocity = move_and_slide(velocity, Vector2.UP)
 		States.FLOOR:
 			if not is_on_floor():
-				state = States.AIR # Cambio statp -> air
+				state = States.AIR # Cambio stato -> air
 				continue # passa subito al prossimo stato
 			$AnimatedSprite.play("floor")  # Cambio animazione/sprite -> floor
 			move(delta, false) # Funzione che fa muovere e saltare il player
@@ -61,17 +67,25 @@ func move(delta: float, slow_falling: bool) -> void:
 	# Assegnazione della velocità
 	if slow_falling:
 		# velocity.y += direction # Funziona con questo
-		velocity.y = clamp(velocity.y, jump_height*0.2, 10)
-		if Input.is_action_pressed("jump") and ((Input.is_action_pressed("left") and direction == 1) or (Input.is_action_pressed("right") and direction == -1)):
-			velocity.x = 10 * -direction # da capire che valore mettere
+		if velocity.y < 280:
+			velocity.y += clamp(velocity.y * 2, jump_height*0.02, 350 / (velocity.y * 0.3))
+		if ((Input.is_action_pressed("left") and direction == 1) or (Input.is_action_pressed("right") and direction == -1)):
+			if direction == 1:
+				$AnimatedSprite.flip_h = true
+				horizontal = -1.0
+			else:
+				$AnimatedSprite.flip_h = false
+				horizontal = 1.0
+			set_direction()
+			velocity.x = move_speed * direction # da capire che valore mettere
 			jump()
 			state = States.AIR
 		velocity = move_and_slide(velocity, Vector2.UP)
 	else:
 		velocity.y += get_gravity() * delta
-		velocity.x = get_input_velocity() * move_speed
+		velocity.x = get_horizontal_velocity() * move_speed
 		# Controllo se ho azionato il salto, se si allora richiamo la funzione che farà partire il salto
-		if Input.is_action_just_pressed("jump") and is_on_floor():
+		if (Input.is_action_just_pressed("right") or Input.is_action_just_pressed("left")) and is_on_floor():
 			jump()
 		set_direction()
 	velocity = move_and_slide(velocity, Vector2.UP)
@@ -85,14 +99,14 @@ func jump():
 	velocity.y = jump_velocity
 
 # Cambio la velocità nell'asse x
-func get_input_velocity() -> float:
-	var horizontal := 0.0
-	if Input.is_action_pressed("left"):
+func get_horizontal_velocity() -> float:
+	# Per avere il salto tenendo premuto togliere _just_
+	if Input.is_action_just_pressed("left"):
 		$AnimatedSprite.flip_h = true
-		horizontal -= 1.0
-	if Input.is_action_pressed("right"):
+		horizontal = -1.0
+	if Input.is_action_just_pressed("right"):
 		$AnimatedSprite.flip_h = false
-		horizontal += 1.0
+		horizontal = 1.0
 	return horizontal
 
 # Ritorna true se il personaggi si trova nelle vicinanze di un muro
