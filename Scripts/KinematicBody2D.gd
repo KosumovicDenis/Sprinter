@@ -2,6 +2,16 @@ extends KinematicBody2D
 
 # Velocità di movimento nell'asse x
 export var move_speed = 200.0
+export var max_wall_slide_speed = 280
+onready var original_speed = move_speed # Per tenere conto della vecchi velocità prima del dash
+# Variabili per il dash
+export var dash_speed = 800.0
+const dash_length = 0.2 # Durata dash
+onready var dash = $Dash # Scena che gestisce la durata del dash
+var can_dash = false
+# Dash Effect
+export(PackedScene) var dash_effect
+
 var horizontal := 0.0 # Direzione personaggio
 
 # Velocità in entrambi gli assi (inizialmente viene settata a ZERO(0,O))
@@ -40,19 +50,42 @@ func _physics_process(delta):
 					state = States.WALL # Cambio statp -> wall
 					continue # passa subito al prossimo stato
 				else:
-					velocity.y += wall_friction * 1.5 # Rallenta va velocià nel salto -> TODO: rivalutare il valore
-			$AnimatedSprite.play("air")  # Cambio animazione/sprite -> air
-			#move(delta, false) # Funzione che fa muovere e saltare il player
-			velocity.y += get_gravity() * delta
+					velocity.y += wall_friction * 3.5 # Rallenta va velocià nel salto -> TODO: rivalutare il valore (1.5 valore precedente)
+
+			# move(delta, false) # Funzione che fa muovere e saltare il player
 			# velocity.x = velocity.x
-			velocity.x = horizontal * move_speed # Per avere un salto più lungo -> velocity.x = velocity.x con velocity.x = n * direction -> funzione move e con n alto(450)
+			# velocity.y += get_gravity() * delta
+
+			if ((Input.is_action_just_pressed("left") and direction == -1) or (Input.is_action_just_pressed("right") and direction == 1)) and can_dash:
+				can_dash = false
+				dash.start(dash_length)
+				var single_dash_effect = dash_effect.instance()
+				single_dash_effect.get_node("dash_effect").emitting = true
+				single_dash_effect.get_node("dash_effect").process_material.direction.x = -direction
+				single_dash_effect.get_node("dash_effect").position = Vector2(position.x + (40 * -direction), position.y)
+				get_parent().add_child(single_dash_effect)
+			else:
+				velocity.x = horizontal * move_speed # Per avere un salto più lungo -> velocity.x = velocity.x con velocity.x = n * direction -> funzione move e con n alto(450)
+
 			velocity = move_and_slide(velocity, Vector2.UP)
+
+			if !dash.is_dashing():
+				$AnimatedSprite.play("air")  # Cambio animazione/sprite -> air
+				move_speed = original_speed
+				velocity.y += get_gravity() * delta
+			else:
+				$AnimatedSprite.play("dash")
+				move_speed = dash_speed
+				velocity.y = 0
+
 		States.FLOOR:
 			if not is_on_floor():
 				state = States.AIR # Cambio stato -> air
 				continue # passa subito al prossimo stato
+			can_dash = true
 			$AnimatedSprite.play("floor")  # Cambio animazione/sprite -> floor
 			move(delta, false) # Funzione che fa muovere e saltare il player
+
 		States.WALL:
 			if is_on_floor():
 				state = States.FLOOR # Cambio statp -> floor
@@ -60,6 +93,7 @@ func _physics_process(delta):
 			elif not is_near_wall():
 				state = States.AIR # Cambio statp -> air
 				continue # passa subito al prossimo stato
+			can_dash = true
 			$AnimatedSprite.play("wall")  # Cambio animazione/sprite -> wall
 			move(delta, true)
 
@@ -67,7 +101,7 @@ func move(delta: float, slow_falling: bool) -> void:
 	# Assegnazione della velocità
 	if slow_falling:
 		# velocity.y += direction # Funziona con questo
-		if velocity.y < 280:
+		if velocity.y < max_wall_slide_speed:
 			velocity.y += clamp(velocity.y * 2, jump_height*0.02, 350 / (velocity.y * 0.3))
 		if ((Input.is_action_pressed("left") and direction == 1) or (Input.is_action_pressed("right") and direction == -1)):
 			if direction == 1:

@@ -1,0 +1,37 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://Scripts/Effects/dash_effect.gd" type="Script" id=1]
+[ext_resource path="res://Assets/dash.png" type="Texture" id=2]
+
+[sub_resource type="Curve" id=4]
+_data = [ Vector2( 0.0133588, 0.5 ), 0.0, 0.0, 0, 0, Vector2( 1, 1 ), 0.0, 0.0, 0, 0 ]
+
+[sub_resource type="CurveTexture" id=2]
+curve = SubResource( 4 )
+
+[sub_resource type="ParticlesMaterial" id=3]
+flag_disable_z = true
+direction = Vector3( -1, 0, 0 )
+spread = 0.0
+gravity = Vector3( 0, 0, 0 )
+initial_velocity = 200.0
+initial_velocity_random = 0.2
+angular_velocity = 470.0
+angular_velocity_random = 0.2
+orbit_velocity = 0.0
+orbit_velocity_random = 0.0
+linear_accel = 20.0
+linear_accel_random = 1.0
+scale = 0.25
+scale_curve = SubResource( 2 )
+
+[node name="Dash_effect" type="Node2D"]
+
+[node name="dash_effect" type="Particles2D" parent="."]
+emitting = false
+amount = 1
+lifetime = 0.5
+one_shot = true
+process_material = SubResource( 3 )
+texture = ExtResource( 2 )
+script = ExtResource( 1 )

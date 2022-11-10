@@ -1,15 +1,23 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://Assets/Player/wall.png" type="Texture" id=1]
 [ext_resource path="res://Scripts/KinematicBody2D.gd" type="Script" id=2]
 [ext_resource path="res://Assets/Player/air.png" type="Texture" id=3]
 [ext_resource path="res://Assets/Player/floor.png" type="Texture" id=4]
+[ext_resource path="res://Scenes/Dash.tscn" type="PackedScene" id=5]
+[ext_resource path="res://Assets/Player/dash.png" type="Texture" id=6]
+[ext_resource path="res://Scenes/Effects/Dash_effect.tscn" type="PackedScene" id=7]
 
 [sub_resource type="SpriteFrames" id=2]
 animations = [ {
 "frames": [ ExtResource( 3 ) ],
 "loop": true,
 "name": "air",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 6 ) ],
+"loop": true,
+"name": "dash",
 "speed": 5.0
 }, {
 "frames": [ ExtResource( 4 ) ],
@@ -32,13 +40,14 @@ extents = Vector2( 30, 30 )
 collision_mask = 2
 script = ExtResource( 2 )
 move_speed = 300.0
+dash_effect = ExtResource( 7 )
 jump_height = 180.0
 jump_time_to_peak = 0.5
 jump_time_to_descent = 0.4
 
 [node name="AnimatedSprite" type="AnimatedSprite" parent="KinematicBody2D"]
 frames = SubResource( 2 )
-animation = "floor"
+animation = "dash"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="KinematicBody2D"]
 shape = SubResource( 1 )
@@ -54,3 +63,5 @@ current = true
 drag_margin_v_enabled = true
 drag_margin_top = 0.35
 drag_margin_bottom = 0.34
+
+[node name="Dash" parent="KinematicBody2D" instance=ExtResource( 5 )]
