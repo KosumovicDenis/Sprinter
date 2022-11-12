@@ -1,0 +1,24 @@
+[gd_scene load_steps=3 format=2]
+
+[sub_resource type="RectangleShape2D" id=1]
+extents = Vector2( 1000, 1000 )
+
+[sub_resource type="RectangleShape2D" id=2]
+extents = Vector2( 1000, 1000 )
+
+[node name="Control" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Left_side" type="TouchScreenButton" parent="."]
+self_modulate = Color( 0, 0.0156863, 1, 1 )
+position = Vector2( 0, -1000 )
+rotation = 1.5708
+shape = SubResource( 1 )
+action = "left"
+
+[node name="Right_Side" type="TouchScreenButton" parent="."]
+self_modulate = Color( 0.0784314, 1, 0, 1 )
+position = Vector2( 0, -1000 )
+shape = SubResource( 2 )
+action = "right"
