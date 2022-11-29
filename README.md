@@ -1,1 +1,1 @@
-# CosmoRace2
+# Sprinter
