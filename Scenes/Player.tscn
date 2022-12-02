@@ -1,13 +1,23 @@
-[gd_scene load_steps=11 format=2]
+[gd_scene load_steps=21 format=2]
 
-[ext_resource path="res://Assets/Player/wall.png" type="Texture" id=1]
+[ext_resource path="res://Assets/TreasureHunter16x16/TreasureHunter16x16/png/player/wall/wall3.png" type="Texture" id=1]
 [ext_resource path="res://Scripts/KinematicBody2D.gd" type="Script" id=2]
-[ext_resource path="res://Assets/Player/air.png" type="Texture" id=3]
-[ext_resource path="res://Assets/Player/floor.png" type="Texture" id=4]
+[ext_resource path="res://Assets/TreasureHunter16x16/TreasureHunter16x16/png/player/jump.png" type="Texture" id=3]
+[ext_resource path="res://Assets/TreasureHunter16x16/TreasureHunter16x16/png/player/run/run5.png" type="Texture" id=4]
 [ext_resource path="res://Scenes/Dash.tscn" type="PackedScene" id=5]
-[ext_resource path="res://Assets/Player/dash.png" type="Texture" id=6]
+[ext_resource path="res://Assets/TreasureHunter16x16/TreasureHunter16x16/png/player/run/run3.png" type="Texture" id=6]
 [ext_resource path="res://Scenes/Effects/Dash_effect.tscn" type="PackedScene" id=7]
 [ext_resource path="res://Scenes/Input/MobileInput.tscn" type="PackedScene" id=8]
+[ext_resource path="res://Assets/TreasureHunter16x16/TreasureHunter16x16/png/player/idle/idle1.png" type="Texture" id=9]
+[ext_resource path="res://Assets/TreasureHunter16x16/TreasureHunter16x16/png/player/idle/idle2.png" type="Texture" id=10]
+[ext_resource path="res://Assets/TreasureHunter16x16/TreasureHunter16x16/png/player/idle/idle3.png" type="Texture" id=11]
+[ext_resource path="res://Assets/TreasureHunter16x16/TreasureHunter16x16/png/player/wall/wall2.png" type="Texture" id=12]
+[ext_resource path="res://Assets/TreasureHunter16x16/TreasureHunter16x16/png/player/wall/wall1.png" type="Texture" id=13]
+[ext_resource path="res://Assets/TreasureHunter16x16/TreasureHunter16x16/png/player/run/run6.png" type="Texture" id=14]
+[ext_resource path="res://Assets/TreasureHunter16x16/TreasureHunter16x16/png/player/run/run2.png" type="Texture" id=15]
+[ext_resource path="res://Assets/TreasureHunter16x16/TreasureHunter16x16/png/player/run/run4.png" type="Texture" id=16]
+[ext_resource path="res://Assets/TreasureHunter16x16/TreasureHunter16x16/png/player/fall.png" type="Texture" id=17]
+[ext_resource path="res://Assets/TreasureHunter16x16/TreasureHunter16x16/png/player/run/run1.png" type="Texture" id=18]
 
 [sub_resource type="SpriteFrames" id=2]
 animations = [ {
@@ -16,26 +26,32 @@ animations = [ {
 "name": "air",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 6 ) ],
+"frames": [ ExtResource( 17 ) ],
 "loop": true,
 "name": "dash",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 4 ) ],
+"frames": [ ExtResource( 18 ), ExtResource( 15 ), ExtResource( 6 ), ExtResource( 16 ), ExtResource( 4 ), ExtResource( 14 ) ],
 "loop": true,
 "name": "floor",
+"speed": 10.0
+}, {
+"frames": [ ExtResource( 9 ), ExtResource( 10 ), ExtResource( 11 ) ],
+"loop": true,
+"name": "idle",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 1 ) ],
+"frames": [ ExtResource( 13 ), ExtResource( 12 ), ExtResource( 1 ) ],
 "loop": true,
 "name": "wall",
-"speed": 5.0
+"speed": 8.0
 } ]
 
 [sub_resource type="RectangleShape2D" id=1]
-extents = Vector2( 30, 30 )
+extents = Vector2( 24, 30 )
 
 [node name="Player" type="Node2D"]
+z_index = 1
 
 [node name="KinematicBody2D" type="KinematicBody2D" parent="."]
 collision_mask = 2
@@ -53,8 +69,10 @@ drag_margin_top = 0.35
 drag_margin_bottom = 0.34
 
 [node name="AnimatedSprite" type="AnimatedSprite" parent="KinematicBody2D"]
+scale = Vector2( 4, 4 )
 frames = SubResource( 2 )
-animation = "air"
+animation = "idle"
+playing = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="KinematicBody2D"]
 shape = SubResource( 1 )
@@ -62,9 +80,9 @@ shape = SubResource( 1 )
 [node name="WallChecker" type="RayCast2D" parent="KinematicBody2D"]
 rotation = -1.5708
 enabled = true
-cast_to = Vector2( -0.00011584, 32 )
+cast_to = Vector2( 0, 26 )
 collision_mask = 2
 
 [node name="Dash" parent="KinematicBody2D" instance=ExtResource( 5 )]
 
-[node name="Control" parent="KinematicBody2D" instance=ExtResource( 8 )]
+[node name="MobileInput" parent="KinematicBody2D" instance=ExtResource( 8 )]
